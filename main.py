@@ -1,8 +1,19 @@
 import os
 import requests
+from flask import Flask
+from threading import Thread
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot ishlayapti!"
+
+def run_web():
+    app.run(host='0.0.0.0', port=10000)
 
 def get_ai_response(prompt):
     url = "https://api.groq.com/openai/v1/chat/completions"
@@ -57,4 +68,9 @@ def run_bot():
             print(f"Xatolik: {e}")
 
 if __name__ == "__main__":
+    # Veb serverni alohida oqimda (thread) ishga tushiramiz
+    t = Thread(target=run_web)
+    t.start()
+    
+    # Telegram botni ishga tushiramiz
     run_bot()
