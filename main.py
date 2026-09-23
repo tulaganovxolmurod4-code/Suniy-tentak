@@ -22,18 +22,21 @@ def get_ai_response(prompt):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "llama-3.1-8b-instant",
         "messages": [
-            {"role": "system", "content": "Siz aqlli, yordamchi 3D robot assistentsiz. Har doim o'zbek tilida qisqa, aniq va xushmuomala javob bering."},
+            {"role": "system", "content": "Siz aqlli, yordamchi robot assistentsiz. Har doim o'zbek tilida qisqa, aniq va xushmuomala javob bering."},
             {"role": "user", "content": prompt}
         ]
     }
     
     response = requests.post(url, headers=headers, json=data)
+    print("Groq statusi:", response.status_code)
+    print("Groq javobi:", response.text)
+    
     if response.status_code == 200:
         return response.json()['choices'][0]['message']['content']
     else:
-        return "Kechirasiz, sun'iy intellektga ulanishda xatolik yuz berdi."
+        return f"Xatolik: {response.status_code} - Kalit yoki modelda muammo bor."
 
 def send_telegram_message(chat_id, text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -68,9 +71,6 @@ def run_bot():
             print(f"Xatolik: {e}")
 
 if __name__ == "__main__":
-    # Veb serverni alohida oqimda (thread) ishga tushiramiz
     t = Thread(target=run_web)
     t.start()
-    
-    # Telegram botni ishga tushiramiz
     run_bot()
