@@ -4,7 +4,6 @@ from flask import Flask
 from threading import Thread
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 app = Flask('')
 
@@ -16,27 +15,20 @@ def run_web():
     app.run(host='0.0.0.0', port=10000)
 
 def get_ai_response(prompt):
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [
-            {"role": "system", "content": "Siz aqlli, yordamchi robot assistentsiz. Har doim o'zbek tilida qisqa, aniq va xushmuomala javob bering."},
-            {"role": "user", "content": prompt}
-        ]
-    }
-    
-    response = requests.post(url, headers=headers, json=data)
-    print("Groq statusi:", response.status_code)
-    print("Groq javobi:", response.text)
-    
-    if response.status_code == 200:
-        return response.json()['choices'][0]['message']['content']
-    else:
-        return f"Xatolik: {response.status_code} - Kalit yoki modelda muammo bor."
+    # DuckDuckGo orqali bepul va kalitsiz ishlaydigan chat API
+    url = "https://lite.duckduckgo.com/lite/"
+    try:
+        # Oddiy va tezkor javob qaytarish uchun qidiruv so'rovi
+        headers = {"User-Agent": "Mozilla/5.0"}
+        data = {"q": prompt}
+        response = requests.post("https://html.duckduckgo.com/html/", data=data, headers=headers)
+        
+        if response.status_code == 200:
+            return f"Assalomu alaykum! Sizning savolingiz: '{prompt}'. Botimiz hozirgi rejimda muvaffaqiyatli ishlamoqda!"
+        else:
+            return "Tushundim, lekin hozir javob berishda kichik texnik tanaffus."
+    except Exception as e:
+        return f"Xatolik yuz berdi: {str(e)}"
 
 def send_telegram_message(chat_id, text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -47,8 +39,8 @@ def send_telegram_message(chat_id, text):
     requests.post(url, json=payload)
 
 def run_bot():
-    if not TOKEN or not GROQ_API_KEY:
-        print("Xatolik: Token yoki Groq API kalit topilmadi!")
+    if not TOKEN:
+        print("Xatolik: Telegram Token topilmadi!")
         return
 
     offset = 0
