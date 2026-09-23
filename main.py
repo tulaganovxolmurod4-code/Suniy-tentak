@@ -22,7 +22,7 @@ def get_ai_response(prompt):
         "Content-Type": "application/json"
     }
     data = {
-        "model": "llama3-70b-8192",
+        "model": "llama-3.3-70b-versatile",
         "messages": [
             {"role": "system", "content": "Siz aqlli, yordamchi robot assistentsiz. Har doim o'zbek tilida qisqa, aniq va xushmuomala javob bering."},
             {"role": "user", "content": prompt}
